@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% from "includes/macros.html" import modal_macro, form_macro_experimento %}
+
+{% block content_title %}Experimentos{% endblock %}
+
+
+
+{% block content %}
+<div class="text-right">
+    {{ modal_macro('success', 'Novo Experimento', 'novo_experimento', 'Novo Experimento', 'Novo Experimento', form_macro_experimento(areas, url_for('insert_experimento'))) }}
+</div>
+
+
+<div class="row">
+  <div class="col col-4 input-group mt-3 text-left">
+      <div class="input-group-append">
+          <label class="input-group-text" for="filtra-semestre"><b>Área</b></label>
+      </div>
+      <select class="custom-select" id="filtra-area" name="filtra-semestre" onchange="filtraArea()">
+          <option value="Todos">Todas</option>
+          {% for area in areas %}
+          <option value="{{area.nome}}">{{area.nome}}</option>
+          {% endfor %}
+      </select>
+  </div>
+  <div class="col col-8 input-group mt-3">
+      <div class="input-group-append">
+          <label class="input-group-text" for="pesquisa-tema"><i class="bi bi-search"></i></label>
+      </div>
+      <input type="text" class="form-control" placeholder="Pesquisar por tema de experimento..." id="pesquisa-tema" aria-label="Pesquisar" aria-describedby="addon-wrapping" onkeyup="pesquisaTema(row='1')">
+  </div>
+</div>
+
+
+<table class="table table-hover table-striped table-bordered table-sm mt-3" id="tabela">
+    <thead class="thead-dark">
+      <tr>
+        <th class="col col-4">Área</th>
+        <th class="col col-6">Nome</th>
+        <th class="col col-2 text-center">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for experimento in experimentos %}
+        <tr>
+            <td>{{experimento.areas.nome}}</td>
+            <td>{{experimento.nome}}</td>
+            <td class="text-center">
+                
+                <a href="{{url_for('delete_experimento', id=experimento.id)}}" class="btn btn-sm btn-danger mt-1 mb-1" onclick="return alert('Deseja realmente excluir o experimento {{experimento.nome}}?\nTodos os arquivos relacionados também serão excluídos!!')" title="Excluir"><i class="bi bi-trash"></i></a>
+                <a href="{{url_for('get_experimento', id=experimento.id)}}" class="btn btn-sm btn-primary mt-1 mb-1" title="Ver detalhes"><i class="bi bi-eye"></i></a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
+
+{% block script %}
+<script src="{{url_for('static', filename='js/script.js')}}"></script>
+{% endblock %}
+

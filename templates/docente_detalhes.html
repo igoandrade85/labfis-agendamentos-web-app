@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% from "includes/macros.html" import modal_macro, form_macro_agendamento, form_macro_agendamento_rapido %}
+
+{% block content_title %}{{docente.nome}}{% endblock %}
+
+
+{% block content %}
+
+<div class="text-right">
+    {{ modal_macro('success', 'Novo Agendamento', 'novo_agendamento', 'Novo Agendamento', 'Novo Agendamento',
+    form_macro_agendamento(action=url_for('insert_agendamento', id=docente.id), semestres=semestres, turnos=turnos,
+    experimentos=experimentos, select_semestre="select_semestre_novo", input_data=["input_data_novo"])) }}
+
+    {{ modal_macro('danger', '<i class="bi bi-lightning-fill"></i>', 'agendamento_rapido', 'Agendamento Rápido', 'Agendamento Rápido',
+    form_macro_agendamento_rapido(action=url_for('insert_agendamento_rapido', id=docente.id), semestres=semestres, turnos=turnos,
+    experimentos=experimentos, select_semestre="select_semestre_rapido", input_data=["input_data_inicial", "input_data_final"])) }}
+</div>
+
+<div class="row">
+    <div class="col col-4 input-group mt-3 text-left">
+        <div class="input-group-append">
+            <label class="input-group-text" for="filtra-semestre"><b>Semestre</b></label>
+        </div>
+        <select class="custom-select" id="filtra-semestre" name="filtra-semestre" onchange="filtraSemestre()">
+            <option value="Todos">Todos</option>
+            {% for semestre in semestres %}
+            {% if semestre == current_semester %}
+            <option value="{{semestre}}" selected>{{semestre}}</option>
+            {% else %}
+            <option value="{{semestre}}">{{semestre}}</option>
+            {% endif %}
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col col-8 input-group mt-3">
+        <div class="input-group-append">
+            <label class="input-group-text" for="pesquisa-tema"><i class="bi bi-search"></i></label>
+        </div>
+        <input type="text" class="form-control" placeholder="Pesquisar por tema de experimento..." id="pesquisa-tema" aria-label="Pesquisar" aria-describedby="addon-wrapping" onkeyup="pesquisaTema(row='2')">
+    </div>
+</div>
+
+
+<table class="table table-hover table-striped table-bordered table-sm mt-3" id="tabela">
+    <thead class="thead-dark">
+        <tr class="text-center">
+            <th class="col col-1">Semestre</th>
+            <th class="col col-1">Data</th>
+            <th class="col col-6 text-left">Tema</th>
+            <th class="col col-2">Turno</th>
+            <th class="col col-2 text-center">Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for agendamento in agendamentos %}
+        <tr class="text-center align-middle">
+            <td>{{agendamento.semestre}}</td>
+            <td>{{agendamento.data.strftime('%d/%m/%Y')}}</td>
+            <td class="text-left">{{agendamento.experimentos.nome}}</td>
+            <td>{{agendamento.turnos.nome}}</td>
+            <td>
+                {{ modal_macro('success', '<i class="bi bi-pencil-square"></i>', 'editar-agendamento' + agendamento.id |
+                string, 'Editar', 'Editar Agendamento', form_macro_agendamento(action=url_for('update_agendamento',
+                docente_id=docente.id, agendamento_id=agendamento.id), experimentos=experimentos, semestres=semestres,
+                turnos=turnos, agendamento=agendamento , select_semestre='select_semestre_editar' + agendamento.id |
+                string, input_data=['input_data_editar' + agendamento.id |
+                string])) }}
+                <a href="{{url_for('delete_agendamento', docente_id=docente.id, agendamento_id=agendamento.id)}}"
+                    class="btn btn-sm btn-danger mt-1 mb-1"
+                    onclick="return alert('Deseja realmente excluir o agendamento?')" title="Excluir"><i
+                        class="bi bi-trash"></i></a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
+
+
+{% block script %}
+<script src="{{url_for('static', filename='js/script.js')}}"></script>
+{% endblock %}

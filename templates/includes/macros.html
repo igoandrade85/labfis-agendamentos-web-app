@@ -1,0 +1,206 @@
+
+<!-- Macro Botão Modal -->
+{% macro modal_macro(btn_type, btn_content, target_id, tip_title, form_title, form_macro) %}
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-sm btn-{{btn_type}} mt-1 mb-1" data-toggle="modal" data-target="#{{target_id}}"
+  title="{{tip_title}}">{{btn_content|safe}}</button>
+
+<!-- Modal -->
+<div class="modal fade" id="{{target_id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">{{form_title}}</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        {{form_macro}}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endmacro %}
+
+
+<!-- Macro Novo/Editar Docente -->
+{% macro form_macro_docente(action="#", docente=None) %}
+<form action="{{action}}" class="text-left" method="POST">
+  <div class="form-group">
+    <label for="nome">Nome</label>
+    <input type="text" class="form-control" name="nome" aria-describedby="nome" value="{% if docente %}{{docente.nome}}{% else %}{% endif %}">
+  </div>
+  <div class="form-group">
+    <label for="email">E-mail</label>
+    <input type="email" class="form-control" name="email" value="{% if docente %}{{docente.email}}{% else %}{% endif %}">
+  </div>
+  <button type="submit" class="btn btn-sm btn-primary">Salvar</button>
+</form>
+{% endmacro %}
+
+<!-- Macro Novo/Editar Experimento -->
+{% macro form_macro_experimento(action="#", areas=areas, experimento=None) %}
+<form action="{{action}}" class="text-left" method="POST">
+  <div class="form-group">
+    <label for="nome">Nome</label>
+    <input type="text" class="form-control" name="nome" aria-describedby="nome" value="{% if experimento %}{{experimento.nome}}{% else %}{% endif %}">
+  </div>
+  <div class="form-group">
+    <label for="area_id">Área</label>
+    <select class="custom-select" name="area_id">
+      {% for area in areas %}
+      {% if experimento %}
+      {% if area.id == experimento.area_id %}
+      <option value="{{area.id}}" selected>{{area.nome}}</option>
+      {% else %}
+      <option value="{{area.id}}">{{area.nome}}</option>
+      {% endif %}
+      {% else %}
+      <option value="{{area.id}}">{{area.nome}}</option>
+      {% endif %}
+
+      {% endfor %}
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="descricao">Descrição</label>
+    <textarea class="form-control" rows="3" name="descricao">{% if experimento %}{{experimento.descricao}}{% else %}{% endif %}</textarea>
+  </div>
+  <button type="submit" class="btn btn-sm btn-primary">Salvar</button>
+</form>
+{% endmacro %}
+
+<!-- Macro Novo/Editar Agendamento -->
+{% macro form_macro_agendamento(action="#", experimentos=experimentos, semestres=semestres, turnos=turnos, agendamento=None, select_semestre="", input_data=[], current_semester=current_semester) %}
+<form action="{{action}}" class="text-left" method="POST">
+  <div class="form-group">
+    <label for="tema">Tema da aula</label>
+    <select class="custom-select" name="tema">
+      {% for experimento in experimentos %}
+      {% if agendamento %}
+      {% if agendamento.experimento_id == experimentos.id %}
+      <option value="{{experimento.id}}" selected>{{experimento.nome}}</option>
+      {% else %}
+      <option value="{{experimento.id}}">{{experimento.nome}}</option>
+      {% endif %}
+      {% else %}
+      <option value="{{experimento.id}}">{{experimento.nome}}</option>
+      {% endif %}
+      {% endfor %}
+    </select>
+  </div>
+  <div class="row">
+    <div class="col col-3 form-group">
+      <label for="semestre">Semestre</label>
+      <select class="custom-select" name="semestre" id="{{select_semestre}}" onchange="setMinMAxDate('{{select_semestre}}', ['{{input_data[0]}}'])" value="{{current_semester}}">
+        {% for semestre in semestres %}
+        {% if agendamento %}
+        {% if agendamento.semestre == semestre %}
+        <option value="{{semestre}}" selected>{{semestre}}</option>
+        {% else %}
+        <option value="{{semestre}}">{{semestre}}</option>
+        {% endif %}
+        {% else %}
+        <option value="{{semestre}}">{{semestre}}</option>
+        {% endif %}
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col col-6 form-group">
+      <label for="data">Data</label>
+      <input type="date" class="form-control" name="data" aria-describedby="data" value="{% if agendamento %}{{agendamento.data.strftime('%Y-%m-%d')}}{% else %}{% endif %}" id="{{input_data[0]}}">
+    </div>
+    <div class="col col-3 form-group">
+      <label for="turno">Turno</label>
+      <select class="custom-select" name="turno">
+        {% for turno in turnos %}
+        {% if agendamento %}
+        {% if agendamento.turnos.id == turno.id %}
+        <option value="{{turno.id}}" selected>{{turno.nome}}</option>
+        {% else %}
+        <option value="{{turno.id}}">{{turno.nome}}</option>
+        {% endif %}
+        {% else %}
+        <option value="{{turno.id}}">{{turno.nome}}</option>
+        {% endif %}
+        {% endfor %}
+      </select>
+    </div>
+  </div>  
+  <button type="submit" class="btn btn-sm btn-primary">Salvar</button>
+</form>
+{% endmacro %}
+
+
+
+<!-- Macro Agendamento Rápido -->
+{% macro form_macro_agendamento_rapido(action="#", experimentos=experimentos, semestres=semestres, turnos=turnos, agendamento=None, select_semestre="", input_data=[], current_semester=current_semester) %}
+<form action="{{action}}" class="text-left" method="POST">
+  <div class="form-group">
+    <label for="tema">Tema da aula</label>
+    <select class="custom-select" name="tema">
+      {% for experimento in experimentos %}
+      {% if agendamento %}
+      {% if agendamento.experimento_id == experimentos.id %}
+      <option value="{{experimento.id}}" selected>{{experimento.nome}}</option>
+      {% else %}
+      <option value="{{experimento.id}}">{{experimento.nome}}</option>
+      {% endif %}
+      {% else %}
+      <option value="{{experimento.id}}">{{experimento.nome}}</option>
+      {% endif %}
+      {% endfor %}
+    </select>
+  </div>
+  <div class="row">
+    <div class="col col-4 form-group">
+      <label for="semestre">Semestre</label>
+      <select class="custom-select" name="semestre" id="{{select_semestre}}" onchange="setMinMAxDate('{{select_semestre}}', {{input_data}})">
+        {% for semestre in semestres %}
+        {% if agendamento %}
+        {% if agendamento.semestre == semestre %}
+        <option value="{{semestre}}" selected>{{semestre}}</option>
+        {% else %}
+        <option value="{{semestre}}">{{semestre}}</option>
+        {% endif %}
+        {% else %}
+        <option value="{{semestre}}">{{semestre}}</option>
+        {% endif %}
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col col-4 form-group">
+      <label for="data_inicial">Data Inicial</label>
+      <input type="date" class="form-control" name="data_inicial" aria-describedby="data_inicial" value="{% if agendamento %}{{agendamento.data.strftime('%Y-%m-%d')}}{% else %}{% endif %}" id="{{input_data[0]}}">
+    </div>
+    <div class="col col-4 form-group">
+      <label for="data_final">Data Final</label>
+      <input type="date" class="form-control" name="data_final" aria-describedby="data_final" value="{% if agendamento %}{{agendamento.data.strftime('%Y-%m-%d')}}{% else %}{% endif %}" id="{{input_data[1]}}">
+    </div>
+
+  </div>  
+  <div class="row">
+    <div class="col col-4 form-group">
+      <label for="turno">Turno</label>
+      <select class="custom-select" name="turno">
+        {% for turno in turnos %}
+        {% if agendamento %}
+        {% if agendamento.turnos.id == turno.id %}
+        <option value="{{turno.id}}" selected>{{turno.nome}}</option>
+        {% else %}
+        <option value="{{turno.id}}">{{turno.nome}}</option>
+        {% endif %}
+        {% else %}
+        <option value="{{turno.id}}">{{turno.nome}}</option>
+        {% endif %}
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  <button type="submit" class="btn btn-sm btn-primary">Salvar</button>
+</form>
+{% endmacro %}

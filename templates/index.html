@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block extentions %}
+
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.2/main.min.css' rel='stylesheet' />
+<link href='https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.css' rel='stylesheet'>
+<link href='https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.1/css/all.css' rel='stylesheet'>
+
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.2/main.min.js'></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.2/locales-all.min.js"></script>
+
+<link href='https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.css' rel='stylesheet'>
+<link href='https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.1/css/all.css' rel='stylesheet'>
+
+<link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+
+<script src='https://unpkg.com/popper.js/dist/umd/popper.min.js'></script>
+<script src='https://unpkg.com/tooltip.js/dist/umd/tooltip.min.js'></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendar');
+
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+      themeSystem: 'bootstrap4',
+      locale: 'pt-br',
+
+      eventDidMount: function(info) {
+        $(info.el).tooltip ({
+          title: info.event.extendedProps.description,
+          placement: 'top',
+          trigger: 'hover',
+          container: 'body'
+        });
+      },
+
+      events: [
+        {% for e in events %}
+        {
+          title: '{{e.title}}',
+          description: '{{e.description}}',
+          start: '{{e.date}}',
+          color: '{{e.color}}',
+        },
+        {% endfor %}
+      ]
+    });
+
+    calendar.render();
+  });
+
+</script>
+{% endblock %}
+
+{% block content_title %}Agendamentos{% endblock %}
+
+{% block content %}
+<div id='calendar'></div>
+{% endblock %}
+
+

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% from "includes/macros.html" import modal_macro, form_macro_docente %}
+
+{% block content_title %}Docentes{% endblock %}
+
+{% block content %}
+
+<div class="text-right">
+    {{ modal_macro('success', 'Novo Docente', 'novo_docente', 'Novo Docente', 'Novo Docente', form_macro_docente(url_for('insert_docente'))) }}
+</div>
+
+<table class="table table-hover table-striped table-bordered table-sm mt-3">
+    <thead class="thead-dark">
+      <tr>
+        <th class="col col-5">Nome</th>
+        <th class="col col-5">E-mail</th>
+        <th class="col col-2 text-center">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for docente in docentes %}
+        <tr>
+            <td>{{docente.nome}}</td>
+            <td>{{docente.email}}</td>
+            <td class="text-center">
+                {{ modal_macro('secondary', '<i class="bi bi-pencil-square"></i>', 'editar-'+ docente.id | string , 'Editar', 'Editar Docente', form_macro_docente(url_for('update_docente', id=docente.id), docente)) }}
+                <a href="{{url_for('delete_docente', id=docente.id)}}" class="btn btn-sm btn-danger mt-1 mb-1" onclick="return alert('Deseja realmente excluir o docente {{docente.nome}}?\nTodos os agendamentos relacionados também serão excluídos!!')" title="Excluir"><i class="bi bi-trash"></i></a>
+                <a href="{{url_for('get_docente', id=docente.id)}}" class="btn btn-sm btn-primary mt-1 mb-1" title="Ver agendamentos"><i class="bi bi-calendar-check"></i></i></a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+  </table>
+
+{% endblock %}
