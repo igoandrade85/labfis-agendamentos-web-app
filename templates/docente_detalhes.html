@@ -58,7 +58,7 @@
         <tr class="text-center align-middle">
             <td>{{agendamento.semestre}}</td>
             <td>{{agendamento.data.strftime('%d/%m/%Y')}}</td>
-            <td class="text-left"><b>{{agendamento.experimentos.nome}}</b>{% if agendamento.descricao_atividades %}{{ agendamento.descricao_atividades }}{% endif %}</td>
+            <td class="text-left">{{agendamento.experimentos.nome}}{% if agendamento.descricao_atividades %}{{ agendamento.descricao_atividades }}{% endif %}</td>
             <td>{{agendamento.turnos.nome}}</td>
             <td>
                 {{ modal_macro('success', '<i class="bi bi-pencil-square"></i>', 'editar-agendamento' + agendamento.id |

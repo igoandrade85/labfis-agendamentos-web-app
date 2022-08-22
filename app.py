@@ -61,8 +61,8 @@ def index():
         if agendamento.experimentos:
             tema = agendamento.experimentos.nome
         elif agendamento.descricao_atividades:
-            if len(agendamento.descricao_atividades) > 50:
-                tema = agendamento.descricao_atividades[:50] + "..."
+            if len(agendamento.descricao_atividades) > 150:
+                tema = agendamento.descricao_atividades[:150] + "..."
             else:
                 tema = agendamento.descricao_atividades
         else:

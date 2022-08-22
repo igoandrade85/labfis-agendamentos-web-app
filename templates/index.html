@@ -2,20 +2,17 @@
 
 {% block extentions %}
 
-<link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.2/main.min.css' rel='stylesheet' />
-<link href='https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.css' rel='stylesheet'>
-<link href='https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.1/css/all.css' rel='stylesheet'>
+<link rel="stylesheet" href="{{url_for('static', filename='/css/fullcalendar-5.11.2.main.min.css')}}">
 
-<script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.2/main.min.js'></script>
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.2/locales-all.min.js"></script>
-
-<link href='https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.css' rel='stylesheet'>
-<link href='https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.1/css/all.css' rel='stylesheet'>
-
+<link rel="stylesheet" href="{{url_for('static', filename='/css/fontawesome-free@5.13.1.all.css')}}">
 <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
 
-<script src='https://unpkg.com/popper.js/dist/umd/popper.min.js'></script>
-<script src='https://unpkg.com/tooltip.js/dist/umd/tooltip.min.js'></script>
+
+<script src="{{url_for('static', filename='/js/fullcalendar-5.11.2-main.min.js')}}"></script>
+<script src="{{url_for('static', filename='/js/fullcalendar-5.11.2-locales-pt-br.js')}}"></script>
+
+<script src="{{url_for('static', filename='/js/popper.min.js')}}"></script>
+<script src="{{url_for('static', filename='/js//tooltip.min.js')}}"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
