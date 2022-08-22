@@ -56,6 +56,7 @@ class Agendamento(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     data = db.Column(db.DateTime, nullable=False)
     semestre = db.Column(db.String(16), nullable=False)
+    descricao_atividades = db.Column(db.Text, nullable=True)
     turno_id = db.Column(db.Integer, db.ForeignKey('turnos.id'), nullable=False)
     docente_id = db.Column(db.Integer, db.ForeignKey('docentes.id'), nullable=False)
     experimento_id = db.Column(db.Integer, db.ForeignKey('experimentos.id'))

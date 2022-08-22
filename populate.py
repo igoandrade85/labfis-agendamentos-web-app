@@ -7,11 +7,11 @@ if __name__=="__main__":
         #Docente(nome="Albert Einstein", email="einstein@yahoo.com"),
         #Docente(nome="Isaac Newton", email="newton@yahoo.com"),
 
-        Docente(nome="Heverton Silva de Camargos", email="hscamargos@uft.edu.br"),
-        Docente(nome="Moisés de Souza Arantes Neto", email="netomoises@mail.uft.edu.br"),
-        Docente(nome="Salmo Moreira Sidel", email="sidel@mail.uft.edu.br"),
-        Docente(nome="Antonio Wanderley de Oliveira", email="wanderley@uft.edu.br"),
-        Docente(nome="Marcelo Leineker", email="leineker@gmail.com")
+        #Docente(nome="Heverton Silva de Camargos", email="hscamargos@uft.edu.br"),
+        #Docente(nome="Moisés de Souza Arantes Neto", email="netomoises@mail.uft.edu.br"),
+        #Docente(nome="Salmo Moreira Sidel", email="sidel@mail.uft.edu.br"),
+        #Docente(nome="Antonio Wanderley de Oliveira", email="wanderley@uft.edu.br"),
+        #Docente(nome="Marcelo Leineker", email="leineker@gmail.com")
     ]
     db.session.add_all(docentes)
 
@@ -30,10 +30,14 @@ if __name__=="__main__":
     }
 
     experimentos = []
-    for area in experimentos_dict.keys():
-        for tema in experimentos_dict[area]:
-            experimento = Experimento(nome=tema, area=area, descricao="")
-            experimentos.append(experimento)
+    areas = Area.query.all()
+    for area in areas:
+        try:
+            for tema in experimentos_dict[area.nome]:
+                experimento = Experimento(nome=tema, area_id=area.id, descricao="")
+                experimentos.append(experimento)
+        except:
+            pass
     db.session.add_all(experimentos)
 
 

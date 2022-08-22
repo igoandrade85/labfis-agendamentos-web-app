@@ -30,7 +30,6 @@ def incluir_docente(nome, email):
 
 def verifica_conflito_agendamento(data, turno_id, agendamento_id=None):
     agendamento = Agendamento.query.filter_by(data=data, turno_id=turno_id).first()
-    print(agendamento)
     # novo agendamento
     if agendamento_id is None:
         return bool(agendamento)
@@ -41,9 +40,9 @@ def verifica_conflito_agendamento(data, turno_id, agendamento_id=None):
             return False
         return True
 
-def incluir_agendamento(docente_id, semestre, data, turno_id, experimento_id=None):
+def incluir_agendamento(docente_id, semestre, data, turno_id, experimento_id=None, descricao_atividades=None):
     if not verifica_conflito_agendamento(data, turno_id):
-        agendamento = Agendamento(data=data, semestre=semestre, turno_id=turno_id, experimento_id=experimento_id, docente_id=docente_id)
+        agendamento = Agendamento(data=data, semestre=semestre, turno_id=turno_id, experimento_id=experimento_id, docente_id=docente_id, descricao_atividades=descricao_atividades)
         db.session.add(agendamento)
         db.session.commit()
         return True
@@ -61,11 +60,16 @@ def index():
     for agendamento in agendamentos:
         if agendamento.experimentos:
             tema = agendamento.experimentos.nome
+        elif agendamento.descricao_atividades:
+            if len(agendamento.descricao_atividades) > 50:
+                tema = agendamento.descricao_atividades[:50] + "..."
+            else:
+                tema = agendamento.descricao_atividades
         else:
             tema = 'Não informado'
         events.append({
             'title': agendamento.docentes.email.split('@')[0],
-            'description': f"Tema: {tema} - Turno: {agendamento.turnos.nome}",
+            'description': f"Tema: {tema} Turno: {agendamento.turnos.nome}",
             'date': agendamento.data.strftime('%Y-%m-%d'),
             'color': cor[agendamento.docentes.id],
             'docente_id': agendamento.docente_id
@@ -87,7 +91,7 @@ def get_docente(id):
     agendamentos = Agendamento.query.filter_by(docente_id=id).order_by(Agendamento.semestre, Agendamento.data, Agendamento.turno_id).all()
     semestres = [f"{y}.{s}" for y in range(2022, year+5) for s in range(1,3)]
     turnos = Turno.query.all()
-    experimentos = Experimento.query.all()
+    experimentos = Experimento.query.order_by(Experimento.area_id).all()
     docente = Docente.query.filter_by(id=id).first()
     
     return render_template('docente_detalhes.html', docente=docente, experimentos=experimentos, turnos=turnos, semestres=semestres, agendamentos=agendamentos,current_semester=current_semester)
@@ -107,7 +111,6 @@ def insert_agendamento_rapido(docente_id):
     while (data <= data_final):
         for wday in wdays:
             if data.weekday() == int(wday):
-                print(data, data.weekday())
                 inclusao_agendamento = incluir_agendamento(docente_id, semestre, data, turno_id, experimento_id=None)
                 if inclusao_agendamento:
                     success = True
@@ -123,9 +126,13 @@ def insert_agendamento_rapido(docente_id):
 def insert_agendamento(docente_id): 
     data = datetime.strptime(request.form.get('data'), "%Y-%m-%d")
     turno_id = int(request.form.get('turno'))
-    experimento_id = int(request.form.get('tema'))
+    try:
+        experimento_id = int(request.form.get('tema'))
+    except:
+        experimento_id = None
     semestre = request.form.get('semestre')
-    inclusao_agendamento = incluir_agendamento(docente_id, semestre, data, turno_id, experimento_id)
+    descricao_atividades = request.form.get('descricao_atividades')
+    inclusao_agendamento = incluir_agendamento(docente_id, semestre, data, turno_id, experimento_id, descricao_atividades)
     if inclusao_agendamento:
         flash('success#Dados inseridos com sucesso!')
     else:
@@ -138,13 +145,18 @@ def update_agendamento(docente_id, agendamento_id):
     data = datetime.strptime(request.form.get('data'), "%Y-%m-%d")
     turno_id = int(request.form.get('turno'))
     if not verifica_conflito_agendamento(data, turno_id, agendamento_id):
-        experimento_id = int(request.form.get('tema'))
+        try:
+            experimento_id = int(request.form.get('tema'))
+        except:
+            experimento_id = None
         semestre = request.form.get('semestre')
         agendamento = Agendamento.query.filter_by(id=agendamento_id).first()
         agendamento.data = data
         agendamento.turno_id = turno_id
         agendamento.experimento_id = experimento_id
         agendamento.semestre = semestre
+        agendamento.descricao_atividades = request.form.get('descricao_atividades')
+        print(request.form.get('descricao_atividades'))
         db.session.commit()
         flash('success#Dados alterados com sucesso!')
     else:
@@ -210,7 +222,6 @@ def get_experimentos():
 def insert_experimento():
     nome = request.form.get('nome')
     descricao = request.form.get('descricao')
-    print(descricao)
     area_id = request.form.get('area_id')
     existe_experimento = Experimento.query.filter_by(nome=nome).first()
     if not existe_experimento:
