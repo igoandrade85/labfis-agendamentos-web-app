@@ -5,7 +5,7 @@ class Docente(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    agendamentos = db.relationship('Agendamento', backref='docentes', lazy=True)
+    agendamentos = db.relationship('Agendamento', backref='docentes', cascade = "all,delete", lazy=True)
 
     def __repr__(self):
         return f'<Docente {self.nome}>'
@@ -58,7 +58,7 @@ class Agendamento(db.Model):
     semestre = db.Column(db.String(16), nullable=False)
     turno_id = db.Column(db.Integer, db.ForeignKey('turnos.id'), nullable=False)
     docente_id = db.Column(db.Integer, db.ForeignKey('docentes.id'), nullable=False)
-    experimento_id = db.Column(db.Integer, db.ForeignKey('experimentos.id'), nullable=False)
+    experimento_id = db.Column(db.Integer, db.ForeignKey('experimentos.id'))
 
     def __repr__(self):
         return f'<Agendamento {self.id}>'

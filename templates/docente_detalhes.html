@@ -1,18 +1,20 @@
 {% extends "base.html" %}
-{% from "includes/macros.html" import modal_macro, form_macro_agendamento, form_macro_agendamento_rapido %}
+{% from "macros.html" import modal_macro, form_macro_agendamento, form_macro_agendamento_rapido %}
 
 {% block content_title %}{{docente.nome}}{% endblock %}
 
 
 {% block content %}
 
+
+
 <div class="text-right">
     {{ modal_macro('success', 'Novo Agendamento', 'novo_agendamento', 'Novo Agendamento', 'Novo Agendamento',
-    form_macro_agendamento(action=url_for('insert_agendamento', id=docente.id), semestres=semestres, turnos=turnos,
+    form_macro_agendamento(action=url_for('insert_agendamento', docente_id=docente.id), semestres=semestres, turnos=turnos,
     experimentos=experimentos, select_semestre="select_semestre_novo", input_data=["input_data_novo"])) }}
 
     {{ modal_macro('danger', '<i class="bi bi-lightning-fill"></i>', 'agendamento_rapido', 'Agendamento Rápido', 'Agendamento Rápido',
-    form_macro_agendamento_rapido(action=url_for('insert_agendamento_rapido', id=docente.id), semestres=semestres, turnos=turnos,
+    form_macro_agendamento_rapido(action=url_for('insert_agendamento_rapido', docente_id=docente.id), semestres=semestres, turnos=turnos,
     experimentos=experimentos, select_semestre="select_semestre_rapido", input_data=["input_data_inicial", "input_data_final"])) }}
 </div>
 
@@ -62,7 +64,7 @@
                 {{ modal_macro('success', '<i class="bi bi-pencil-square"></i>', 'editar-agendamento' + agendamento.id |
                 string, 'Editar', 'Editar Agendamento', form_macro_agendamento(action=url_for('update_agendamento',
                 docente_id=docente.id, agendamento_id=agendamento.id), experimentos=experimentos, semestres=semestres,
-                turnos=turnos, agendamento=agendamento , select_semestre='select_semestre_editar' + agendamento.id |
+                turnos=turnos, agendamento=agendamento, select_semestre='select_semestre_editar' + agendamento.id |
                 string, input_data=['input_data_editar' + agendamento.id |
                 string])) }}
                 <a href="{{url_for('delete_agendamento', docente_id=docente.id, agendamento_id=agendamento.id)}}"

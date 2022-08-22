@@ -1,13 +1,13 @@
 {% extends "base.html" %}
-{% from "includes/macros.html" import modal_macro, form_macro_experimento %}
+{% from "macros.html" import modal_macro, form_macro_experimento %}
 
-{% block content_title %}{{experimento.nome}} <span class="badge badge-success">{{experimento.areas.nome}}</span>{% endblock %}
+{% block content_title %}{{experimento.nome}} <span class="badge badge-primary">{{experimento.areas.nome}}</span>{% endblock %}
 
 
 {% block content %}
 
 <div class="text-right">
-    {{ modal_macro('success', 'Editar Experimento', 'editar_experimento' + experimento.id | string, 'Editar Experimento', 'Editar Experimento', form_macro_experimento(areas, url_for('update_experimento', id=experimento.id), experimento)) }}
+    {{ modal_macro('success', 'Editar Experimento', 'editar_experimento' + experimento.id | string, 'Editar Experimento', 'Editar Experimento', form_macro_experimento(action=url_for('update_experimento', id=experimento.id), areas=areas, experimento=experimento)) }}
 </div>
 
 <h2>Descrição</h2>

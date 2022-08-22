@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "includes/macros.html" import modal_macro, form_macro_docente %}
+{% from "macros.html" import modal_macro, form_macro_docente %}
 
 {% block content_title %}Docentes{% endblock %}
 
@@ -24,7 +24,7 @@
             <td>{{docente.email}}</td>
             <td class="text-center">
                 {{ modal_macro('secondary', '<i class="bi bi-pencil-square"></i>', 'editar-'+ docente.id | string , 'Editar', 'Editar Docente', form_macro_docente(url_for('update_docente', id=docente.id), docente)) }}
-                <a href="{{url_for('delete_docente', id=docente.id)}}" class="btn btn-sm btn-danger mt-1 mb-1" onclick="return alert('Deseja realmente excluir o docente {{docente.nome}}?\nTodos os agendamentos relacionados também serão excluídos!!')" title="Excluir"><i class="bi bi-trash"></i></a>
+                <a href="{{url_for('delete_docente', id=docente.id)}}" class="btn btn-sm btn-danger mt-1 mb-1" onclick="return confirm('Deseja realmente excluir o docente {{docente.nome}}?\nTodos os agendamentos relacionados também serão excluídos!!')" title="Excluir"><i class="bi bi-trash"></i></a>
                 <a href="{{url_for('get_docente', id=docente.id)}}" class="btn btn-sm btn-primary mt-1 mb-1" title="Ver agendamentos"><i class="bi bi-calendar-check"></i></i></a>
             </td>
         </tr>

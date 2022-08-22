@@ -1,5 +1,5 @@
 import os
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from xmlrpc.client import Boolean
 from flask import Flask, render_template, redirect, request, flash, url_for
 from flask_sqlalchemy import SQLAlchemy
@@ -17,6 +17,7 @@ migrate = Migrate(app, db)
 moment = Moment(app)
 
 from models import *
+
 
 def incluir_docente(nome, email):
     existe_email = Docente.query.filter_by(email=email).first()
@@ -40,7 +41,17 @@ def verifica_conflito_agendamento(data, turno_id, agendamento_id=None):
             return False
         return True
 
+def incluir_agendamento(docente_id, semestre, data, turno_id, experimento_id=None):
+    if not verifica_conflito_agendamento(data, turno_id):
+        agendamento = Agendamento(data=data, semestre=semestre, turno_id=turno_id, experimento_id=experimento_id, docente_id=docente_id)
+        db.session.add(agendamento)
+        db.session.commit()
+        return True
+    return False
 
+@app.context_processor
+def inject_enumerate():
+    return dict(enumerate=enumerate)
 
 @app.route('/')
 def index():
@@ -48,11 +59,17 @@ def index():
     agendamentos = Agendamento.query.order_by(Agendamento.semestre, Agendamento.data, Agendamento.turno_id).all()
     events = []
     for agendamento in agendamentos:
+        if agendamento.experimentos:
+            tema = agendamento.experimentos.nome
+        else:
+            tema = 'Não informado'
         events.append({
             'title': agendamento.docentes.email.split('@')[0],
-            'description': f"Tema: {agendamento.experimentos.nome} - Turno: {agendamento.turnos.nome}",
+            'description': f"Tema: {tema} - Turno: {agendamento.turnos.nome}",
             'date': agendamento.data.strftime('%Y-%m-%d'),
-            'color': cor[agendamento.docentes.id]
+            'color': cor[agendamento.docentes.id],
+            'docente_id': agendamento.docente_id
+
         })
     return render_template('index.html', events=events)
 
@@ -75,22 +92,46 @@ def get_docente(id):
     
     return render_template('docente_detalhes.html', docente=docente, experimentos=experimentos, turnos=turnos, semestres=semestres, agendamentos=agendamentos,current_semester=current_semester)
 
-@app.route('/docente/<int:id>/insert/agendamento', methods=["POST"])
-def insert_agendamento(id):
+@app.route('/docente/<int:docente_id>/insert/agendamento-rapido', methods=["POST"])
+def insert_agendamento_rapido(docente_id):
+    delta = timedelta(days=1)
 
+    semestre = request.form.get('semestre')
+    turno_id = request.form.get('turno')
+
+    data_inicial = datetime.strptime(request.form.get('data_inicial'), '%Y-%m-%d')
+    data_final = datetime.strptime(request.form.get('data_final'), '%Y-%m-%d')
+    wdays = request.form.getlist('weekdays')
+    data = data_inicial
+    success = False
+    while (data <= data_final):
+        for wday in wdays:
+            if data.weekday() == int(wday):
+                print(data, data.weekday())
+                inclusao_agendamento = incluir_agendamento(docente_id, semestre, data, turno_id, experimento_id=None)
+                if inclusao_agendamento:
+                    success = True
+                else:
+                    turno = Turno.query.filter_by(id=turno_id).first()
+                    flash(f"warning#Já existe uma reserva para {data.strftime('%d/%m/%Y')}, período {turno.nome}.")
+        data += delta
+    if success:
+        flash('success#Dados inseridos com sucesso!')
+    return redirect(url_for('get_docente', id=docente_id)) 
+
+@app.route('/docente/<int:docente_id>/insert/agendamento', methods=["POST"])
+def insert_agendamento(docente_id): 
     data = datetime.strptime(request.form.get('data'), "%Y-%m-%d")
     turno_id = int(request.form.get('turno'))
-    if not verifica_conflito_agendamento(data, turno_id):
-        experimento_id = int(request.form.get('tema'))
-        semestre = request.form.get('semestre')
-        agendamento = Agendamento(data=data, semestre=semestre, turno_id=turno_id, experimento_id=experimento_id, docente_id=id)
-        db.session.add(agendamento)
-        db.session.commit()
+    experimento_id = int(request.form.get('tema'))
+    semestre = request.form.get('semestre')
+    inclusao_agendamento = incluir_agendamento(docente_id, semestre, data, turno_id, experimento_id)
+    if inclusao_agendamento:
         flash('success#Dados inseridos com sucesso!')
     else:
         turno = Turno.query.filter_by(id=turno_id).first()
         flash(f"warning#Já existe uma reserva para {data.strftime('%d/%m/%Y')}, período {turno.nome}.")
-    return redirect(url_for('get_docente', id=id))
+    return redirect(url_for('get_docente', id=docente_id))
 
 @app.route('/docente/<int:docente_id>/update/agendamento/<int:agendamento_id>', methods=["POST"])
 def update_agendamento(docente_id, agendamento_id):
@@ -119,10 +160,6 @@ def delete_agendamento(docente_id, agendamento_id):
     flash('success#Dados excluídos com sucesso!')
     return redirect(url_for('get_docente', id=docente_id))
 
-@app.route('/docente/<int:id>/insert/agendamento-rapido', methods=["POST"])
-def insert_agendamento_rapido(id):
-    flash("Agendamento rápido!!")
-    return redirect(url_for('get_docente', id=id))
 
 @app.route('/insert/docente', methods=["POST"])
 def insert_docente():

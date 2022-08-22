@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
           description: '{{e.description}}',
           start: '{{e.date}}',
           color: '{{e.color}}',
+          url: "{{url_for('get_docente', id=e.docente_id)}}",
         },
         {% endfor %}
       ]

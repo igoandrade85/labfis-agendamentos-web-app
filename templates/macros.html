@@ -80,10 +80,13 @@
   <div class="form-group">
     <label for="tema">Tema da aula</label>
     <select class="custom-select" name="tema">
+      {% if not agendamento.experimento_id %}   
+      <option value="" selected></option>  
+      {% endif %}
       {% for experimento in experimentos %}
       {% if agendamento %}
-      {% if agendamento.experimento_id == experimentos.id %}
-      <option value="{{experimento.id}}" selected>{{experimento.nome}}</option>
+      {% if agendamento.experimento_id == experimento.id %}
+      <option value="{{experimento.id}}" selected>{{experimento.nome}}</option> 
       {% else %}
       <option value="{{experimento.id}}">{{experimento.nome}}</option>
       {% endif %}
@@ -140,22 +143,6 @@
 <!-- Macro Agendamento Rápido -->
 {% macro form_macro_agendamento_rapido(action="#", experimentos=experimentos, semestres=semestres, turnos=turnos, agendamento=None, select_semestre="", input_data=[], current_semester=current_semester) %}
 <form action="{{action}}" class="text-left" method="POST">
-  <div class="form-group">
-    <label for="tema">Tema da aula</label>
-    <select class="custom-select" name="tema">
-      {% for experimento in experimentos %}
-      {% if agendamento %}
-      {% if agendamento.experimento_id == experimentos.id %}
-      <option value="{{experimento.id}}" selected>{{experimento.nome}}</option>
-      {% else %}
-      <option value="{{experimento.id}}">{{experimento.nome}}</option>
-      {% endif %}
-      {% else %}
-      <option value="{{experimento.id}}">{{experimento.nome}}</option>
-      {% endif %}
-      {% endfor %}
-    </select>
-  </div>
   <div class="row">
     <div class="col col-4 form-group">
       <label for="semestre">Semestre</label>
@@ -199,6 +186,18 @@
         {% endif %}
         {% endfor %}
       </select>
+    </div>
+    <div class="col col-8">
+      {% set weekdays = ['Segunda-Feira', 'Terça-Feira', 'Quarta-Feira', 'Quinta-Feira', 'Sexta-Feira', 'Sábado'] %}
+      <label class="form-check-label">Dia(s) da semana</label>
+      {% for weekday in  weekdays%}
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" value="{{weekdays.index(weekday)}}" id="weekdays-{{i}}" name="weekdays">
+        <label class="form-check-label" for="weekdays">
+          {{weekday}}
+        </label>
+      </div>
+      {% endfor %}
     </div>
   </div>
   <button type="submit" class="btn btn-sm btn-primary">Salvar</button>
